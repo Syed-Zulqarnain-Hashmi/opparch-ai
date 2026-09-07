@@ -1,0 +1,358 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* ═══════════════════════════════════════════════════════════════════
+   OPPARCH AI — ENTERPRISE THEME SYSTEM (LIGHT & DARK)
+   Precision contrast tokens designed for enterprise-grade readability
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── LIGHT THEME (Warm Cream / Crisp White / Charcoal / OPPARCH Blue) ─── */
+:root {
+  /* Layout & Canvas */
+  --background:        #F8F9FA;
+  --surface:           #FFFFFF;
+  --surface-secondary: #F1F5F9;
+  --surface-hover:     #E2E8F0;
+
+  /* Sidebar & Navigation */
+  --sidebar-bg:        #0B1528;
+  --sidebar-text:      #F1F5F9;
+  --sidebar-text-muted:#94A3B8;
+  --sidebar-border:    rgba(255, 255, 255, 0.08);
+  --sidebar-hover:     rgba(255, 255, 255, 0.08);
+  --sidebar-active:    rgba(37, 99, 235, 0.25);
+  
+  /* Header */
+  --header-bg:         #FFFFFF;
+  --header-border:     #E2E8F0;
+  --header-text:       #0F172A;
+
+  /* Typography */
+  --foreground:        #0F172A;
+  --text-primary:      #0F172A;
+  --text-secondary:    #334155;
+  --text-muted:        #64748B;
+  --text-disabled:     #94A3B8;
+  --heading:           #0F172A;
+
+  /* Borders & Dividers */
+  --border:            #E2E8F0;
+  --border-subtle:     #F1F5F9;
+
+  /* Primary Brand (OPPARCH Royal Blue) */
+  --primary:           #2563EB;
+  --primary-hover:     #1D4ED8;
+  --primary-foreground:#FFFFFF;
+  --accent:            #2563EB;
+  --accent-hover:      #1D4ED8;
+  --accent-light:      rgba(37, 99, 235, 0.10);
+  --accent-foreground: #FFFFFF;
+
+  /* Secondary & Muted */
+  --secondary:         #F1F5F9;
+  --secondary-foreground: #0F172A;
+  --muted:             #F8FAFC;
+  --muted-foreground:  #64748B;
+
+  /* Cards */
+  --card:              #FFFFFF;
+  --card-foreground:   #0F172A;
+  --card-bg:           #FFFFFF;
+  --card-border:       #E2E8F0;
+  --card-text:         #0F172A;
+  --card-text-muted:   #64748B;
+  --card-shadow:       0 1px 4px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.02);
+
+  /* Glass Panels */
+  --glass-bg:          rgba(255, 255, 255, 0.96);
+  --glass-border:      #E2E8F0;
+  --glass-shadow:      0 4px 16px -2px rgba(0, 0, 0, 0.04);
+
+  /* Inputs & Form Controls */
+  --input-bg:          #FFFFFF;
+  --input-border:      #CBD5E1;
+  --input-text:        #0F172A;
+  --input-placeholder: #94A3B8;
+  --input-focus:       #2563EB;
+
+  /* Badges & Tags */
+  --badge-bg:          #EFF6FF;
+  --badge-text:        #1D4ED8;
+  --badge-border:      #BFDBFE;
+
+  /* Status Colors */
+  --success:           #16A34A;
+  --success-text:      #15803D;
+  --success-bg:        #DCFCE7;
+  --success-border:    #BBF7D0;
+  --warning:           #D97706;
+  --warning-text:      #B45309;
+  --warning-bg:        #FEF3C7;
+  --warning-border:    #FDE68A;
+  --danger:            #DC2626;
+  --danger-text:       #B91C1C;
+  --danger-bg:         #FEE2E2;
+  --danger-border:     #FECACA;
+
+  /* Table */
+  --table-header-bg:   #F8FAFC;
+  --table-row-hover:   #F1F5F9;
+  --table-border:      #E2E8F0;
+  --table-text:        #0F172A;
+
+  /* Scrollbar */
+  --scrollbar-thumb:   #CBD5E1;
+  --scrollbar-track:   #F1F5F9;
+
+  /* Links */
+  --link:              #2563EB;
+  --link-hover:        #1D4ED8;
+}
+
+/* ─── DARK THEME (Deep Black / Midnight Navy / Electric Blue / Silver / Gold) ─── */
+.dark {
+  /* Layout & Canvas */
+  --background:        #030712;
+  --surface:           #081226;
+  --surface-secondary: #0E1E3D;
+  --surface-hover:     #142B57;
+
+  /* Sidebar & Navigation */
+  --sidebar-bg:        #02050E;
+  --sidebar-text:      #F8FAFC;
+  --sidebar-text-muted:#94A3B8;
+  --sidebar-border:    rgba(77, 141, 255, 0.15);
+  --sidebar-hover:     rgba(255, 255, 255, 0.06);
+  --sidebar-active:    rgba(77, 141, 255, 0.20);
+
+  /* Header */
+  --header-bg:         #060E1F;
+  --header-border:     rgba(77, 141, 255, 0.18);
+  --header-text:       #F8FAFC;
+
+  /* Typography */
+  --foreground:        #F8FAFC;
+  --text-primary:      #F8FAFC;
+  --text-secondary:    #CBD5E1;
+  --text-muted:        #94A3B8;
+  --text-disabled:     #64748B;
+  --heading:           #FFFFFF;
+
+  /* Borders & Dividers */
+  --border:            rgba(77, 141, 255, 0.20);
+  --border-subtle:     rgba(77, 141, 255, 0.10);
+
+  /* Primary Brand (Electric OPPARCH Blue) */
+  --primary:           #3B82F6;
+  --primary-hover:     #60A5FA;
+  --primary-foreground:#FFFFFF;
+  --accent:            #4D8DFF;
+  --accent-hover:      #70A4FF;
+  --accent-light:      rgba(77, 141, 255, 0.14);
+  --accent-foreground: #FFFFFF;
+
+  /* Secondary & Muted */
+  --secondary:         #0E1E3D;
+  --secondary-foreground: #F8FAFC;
+  --muted:             #081226;
+  --muted-foreground:  #94A3B8;
+
+  /* Cards */
+  --card:              #081226;
+  --card-foreground:   #F8FAFC;
+  --card-bg:           #081226;
+  --card-border:       rgba(77, 141, 255, 0.18);
+  --card-text:         #F8FAFC;
+  --card-text-muted:   #94A3B8;
+  --card-shadow:       0 8px 24px rgba(0, 0, 0, 0.45);
+
+  /* Glass Panels */
+  --glass-bg:          rgba(8, 18, 38, 0.94);
+  --glass-border:      rgba(77, 141, 255, 0.20);
+  --glass-shadow:      0 8px 32px rgba(0, 0, 0, 0.50);
+
+  /* Inputs & Form Controls */
+  --input-bg:          #0B1733;
+  --input-border:      rgba(77, 141, 255, 0.28);
+  --input-text:        #F8FAFC;
+  --input-placeholder: #64748B;
+  --input-focus:       #4D8DFF;
+
+  /* Badges & Tags */
+  --badge-bg:          rgba(77, 141, 255, 0.14);
+  --badge-text:        #93C5FD;
+  --badge-border:      rgba(77, 141, 255, 0.30);
+
+  /* Status Colors */
+  --success:           #22C55E;
+  --success-text:      #4ADE80;
+  --success-bg:        rgba(34, 197, 94, 0.12);
+  --success-border:    rgba(34, 197, 94, 0.30);
+  --warning:           #F59E0B;
+  --warning-text:      #FCD34D;
+  --warning-bg:        rgba(245, 158, 11, 0.12);
+  --warning-border:    rgba(245, 158, 11, 0.30);
+  --danger:            #EF4444;
+  --danger-text:       #F87171;
+  --danger-bg:         rgba(239, 68, 68, 0.12);
+  --danger-border:     rgba(239, 68, 68, 0.30);
+
+  /* Table */
+  --table-header-bg:   #0B1733;
+  --table-row-hover:   #112349;
+  --table-border:      rgba(77, 141, 255, 0.16);
+  --table-text:        #E2E8F0;
+
+  /* Scrollbar */
+  --scrollbar-thumb:   #163166;
+  --scrollbar-track:   #040814;
+
+  /* Links */
+  --link:              #60A5FA;
+  --link-hover:        #93C5FD;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BASE LAYER & CONTRAST SAFEGUARDS
+   ═══════════════════════════════════════════════════════════════════ */
+@layer base {
+  html {
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--heading);
+    letter-spacing: -0.015em;
+  }
+
+  p {
+    color: var(--text-secondary);
+  }
+
+  /* In light mode, protect against invisible white text */
+  html.light .text-white:not([class*="bg-"]):not(button):not(a):not(.keep-white) {
+    color: var(--text-primary) !important;
+  }
+
+  html.light .text-slate-300,
+  html.light .text-slate-400,
+  html.light .text-gray-300,
+  html.light .text-gray-400 {
+    color: var(--text-muted) !important;
+  }
+
+  /* Solid buttons and badges MUST retain white text */
+  button[class*="bg-royal-"],
+  button[class*="bg-electric-"],
+  button[class*="bg-blue-"],
+  button[class*="bg-emerald-"],
+  button[class*="bg-purple-"],
+  button[class*="bg-amber-"],
+  button[class*="bg-red-"],
+  button[class*="bg-gradient-"],
+  a[class*="bg-royal-"],
+  a[class*="bg-electric-"],
+  a[class*="bg-blue-"],
+  a[class*="bg-emerald-"],
+  a[class*="bg-purple-"],
+  a[class*="bg-gradient-"],
+  .btn-gradient {
+    color: #FFFFFF !important;
+  }
+
+  button[class*="bg-gradient-"] *,
+  a[class*="bg-gradient-"] * {
+    color: #FFFFFF !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SEMANTIC PANELS & CARDS
+   ═══════════════════════════════════════════════════════════════════ */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 1rem;
+  color: var(--text-primary);
+}
+
+.glass-panel-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel-hover:hover {
+  border-color: var(--accent);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10), 0 0 20px var(--accent-light);
+  transform: translateY(-2px);
+}
+
+.theme-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--card-text);
+  box-shadow: var(--card-shadow);
+  border-radius: 0.75rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   INPUTS & FORM CONTROLS
+   ═══════════════════════════════════════════════════════════════════ */
+input, select, textarea {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--input-text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--input-placeholder);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════════════════════════════ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   EFFECTS & GLOW
+   ═══════════════════════════════════════════════════════════════════ */
+.dark .text-glow {
+  text-shadow: 0 0 15px rgba(77, 141, 255, 0.7);
+}
+
+.dark .shadow-electric-glow {
+  box-shadow: 0 0 16px rgba(77, 141, 255, 0.35);
+}
+
+.electric-border {
+  border: 1px solid var(--border);
+}
