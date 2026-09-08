@@ -27,6 +27,7 @@ from sqlalchemy import select, desc
 from sqlalchemy.orm import selectinload
 from typing import Dict, Any, List, Optional
 
+from app.core.config import settings
 from app.database.session import get_db
 from app.database.models import (
     BusinessLead, LeadScore, LeadAudit, LeadServiceMatch,
@@ -265,10 +266,14 @@ async def discover_opportunities(
     lead_responses: List[BusinessLeadResponse] = []
     high_priority_count = 0
 
-    ai_provider = current_user.ai_provider_preference if current_user else "OLLAMA"
-    gemini_key = current_user.gemini_api_key if current_user else None
-    openai_key = current_user.openai_api_key if current_user else None
-    ollama_model = current_user.ollama_model_preference if current_user else None
+    gemini_key = (current_user.gemini_api_key if current_user and current_user.gemini_api_key else None) or settings.GEMINI_API_KEY
+    openai_key = (current_user.openai_api_key if current_user and current_user.openai_api_key else None) or settings.OPENAI_API_KEY
+    ollama_model = current_user.ollama_model_preference if current_user and current_user.ollama_model_preference else settings.OLLAMA_MODEL
+
+    if current_user and current_user.ai_provider_preference:
+        ai_provider = current_user.ai_provider_preference
+    else:
+        ai_provider = "GEMINI" if gemini_key else ("OPENAI" if openai_key else "OLLAMA")
 
     sem = asyncio.Semaphore(6)
 

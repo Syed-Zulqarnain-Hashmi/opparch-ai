@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Phone, MapPin, Globe, Send, CheckCircle2, Target, Sparkles, User, Briefcase, MessageSquare, AlertCircle, Loader2 } from "lucide-react";
+import { fetchApi } from "@/lib/api";
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
@@ -17,16 +18,10 @@ export default function ContactPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/v1/contact", {
+      await fetchApi("/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.detail || "Failed to send message.");
-      }
 
       setSubmitted(true);
       setForm({ name: "", email: "", subject: "", message: "" });

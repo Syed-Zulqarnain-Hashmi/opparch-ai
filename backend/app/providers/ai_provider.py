@@ -16,6 +16,7 @@ Automatic 4-Tier Fallback:
 import logging
 from typing import Dict, Any, List, Optional
 
+from app.core.config import settings
 from app.core.location_registry import LocationRegistry, CITY_TO_COUNTRY_MAP
 from app.providers.ollama_provider import OllamaProvider
 from app.providers.gemini_provider import GeminiProvider
@@ -147,41 +148,77 @@ class AIProvider:
         temperature: float = 0.2
     ) -> Dict[str, Any]:
         """
-        Executes a completion prompt with automatic fallback down the provider ladder.
-        Returns: {"text": str, "provider_used": str, "fallback_triggered": bool}
+        Executes a completion prompt with strict provider routing.
+        Respects user's selected provider (OpenAI, Gemini, Ollama, Demo) and never
+        silently falls back to Ollama when a cloud provider was explicitly selected.
+        Returns: {"text": str, "provider_used": str, "fallback_triggered": bool, "error": Optional[str]}
         """
         prov = (provider or "OLLAMA").upper().strip()
 
         # ── 1. GEMINI PATH ───────────────────────────────────────────────────
-        if prov == "GEMINI" and gemini_key:
-            res = await GeminiProvider.generate_completion(prompt=prompt, api_key=gemini_key, temperature=temperature)
+        if prov == "GEMINI":
+            active_key = (gemini_key or "").strip() or settings.GEMINI_API_KEY
+            if not active_key:
+                logger.warning("[AIProvider] User selected Gemini, but no Gemini API key is configured.")
+                return {
+                    "text": "",
+                    "provider_used": "Gemini (Unconfigured)",
+                    "fallback_triggered": False,
+                    "error": "Gemini API key is not configured. Please add your key in Settings."
+                }
+            res = await GeminiProvider.generate_completion(prompt=prompt, api_key=active_key, temperature=temperature)
             if res:
                 return {"text": res, "provider_used": "Gemini (gemini-1.5-flash)", "fallback_triggered": False}
-            logger.warning("[AIProvider] Gemini failed or quota exceeded — falling back to Ollama.")
+            return {
+                "text": "",
+                "provider_used": "Gemini (Error)",
+                "fallback_triggered": False,
+                "error": "Gemini API request failed. Check API key validity and quota."
+            }
 
         # ── 2. OPENAI PATH ───────────────────────────────────────────────────
-        elif prov == "OPENAI" and openai_key:
-            res = await OpenAIProvider.generate_completion(prompt=prompt, api_key=openai_key, temperature=temperature)
+        elif prov == "OPENAI":
+            active_key = (openai_key or "").strip() or settings.OPENAI_API_KEY
+            if not active_key:
+                logger.warning("[AIProvider] User selected OpenAI, but no OpenAI API key is configured.")
+                return {
+                    "text": "",
+                    "provider_used": "OpenAI (Unconfigured)",
+                    "fallback_triggered": False,
+                    "error": "OpenAI API key is not configured. Please add your key in Settings."
+                }
+            res = await OpenAIProvider.generate_completion(prompt=prompt, api_key=active_key, temperature=temperature)
             if res:
                 return {"text": res, "provider_used": "OpenAI (gpt-4o-mini)", "fallback_triggered": False}
-            logger.warning("[AIProvider] OpenAI failed or quota exceeded — falling back to Ollama.")
+            return {
+                "text": "",
+                "provider_used": "OpenAI (Error)",
+                "fallback_triggered": False,
+                "error": "OpenAI API request failed. Check API key validity and quota."
+            }
 
-        # ── 3. OLLAMA PATH (Primary or Fallback) ──────────────────────────────
-        if prov != "DEMO":
+        # ── 3. OLLAMA PATH ───────────────────────────────────────────────────
+        elif prov == "OLLAMA":
             res = await OllamaProvider.generate_completion(prompt=prompt, model=ollama_model, temperature=temperature)
             if res:
                 used_model = ollama_model or OllamaProvider._default_model()
                 return {
                     "text": res,
                     "provider_used": f"Ollama ({used_model})",
-                    "fallback_triggered": (prov in ["GEMINI", "OPENAI"])
+                    "fallback_triggered": False
                 }
+            return {
+                "text": "",
+                "provider_used": "Ollama (Offline)",
+                "fallback_triggered": False,
+                "error": "Local Ollama is offline or unreachable on http://127.0.0.1:11434."
+            }
 
-        # ── 4. DETERMINISTIC FALLBACK ────────────────────────────────────────
+        # ── 4. DEMO / DETERMINISTIC ──────────────────────────────────────────
         return {
             "text": "",
-            "provider_used": "Deterministic Rule Engine (Fallback)",
-            "fallback_triggered": True
+            "provider_used": "Deterministic Rule Engine",
+            "fallback_triggered": False
         }
 
     @classmethod
@@ -195,39 +232,71 @@ class AIProvider:
         temperature: float = 0.1
     ) -> Dict[str, Any]:
         """
-        Generates structured JSON with automatic fallback.
+        Generates structured JSON with strict provider routing.
         """
         prov = (provider or "OLLAMA").upper().strip()
 
         # ── 1. GEMINI ────────────────────────────────────────────────────────
-        if prov == "GEMINI" and gemini_key:
-            res = await GeminiProvider.generate_json(prompt=prompt, api_key=gemini_key, temperature=temperature)
+        if prov == "GEMINI":
+            active_key = (gemini_key or "").strip() or settings.GEMINI_API_KEY
+            if not active_key:
+                return {
+                    "json": None,
+                    "provider_used": "Gemini (Unconfigured)",
+                    "fallback_triggered": False,
+                    "error": "Gemini API key is not configured."
+                }
+            res = await GeminiProvider.generate_json(prompt=prompt, api_key=active_key, temperature=temperature)
             if res:
                 return {"json": res, "provider_used": "Gemini (gemini-1.5-flash)", "fallback_triggered": False}
-            logger.warning("[AIProvider] Gemini JSON failed — falling back to Ollama.")
+            return {
+                "json": None,
+                "provider_used": "Gemini (Error)",
+                "fallback_triggered": False,
+                "error": "Gemini JSON generation failed."
+            }
 
         # ── 2. OPENAI ────────────────────────────────────────────────────────
-        elif prov == "OPENAI" and openai_key:
-            res = await OpenAIProvider.generate_json(prompt=prompt, api_key=openai_key, temperature=temperature)
+        elif prov == "OPENAI":
+            active_key = (openai_key or "").strip() or settings.OPENAI_API_KEY
+            if not active_key:
+                return {
+                    "json": None,
+                    "provider_used": "OpenAI (Unconfigured)",
+                    "fallback_triggered": False,
+                    "error": "OpenAI API key is not configured."
+                }
+            res = await OpenAIProvider.generate_json(prompt=prompt, api_key=active_key, temperature=temperature)
             if res:
                 return {"json": res, "provider_used": "OpenAI (gpt-4o-mini)", "fallback_triggered": False}
-            logger.warning("[AIProvider] OpenAI JSON failed — falling back to Ollama.")
+            return {
+                "json": None,
+                "provider_used": "OpenAI (Error)",
+                "fallback_triggered": False,
+                "error": "OpenAI JSON generation failed."
+            }
 
         # ── 3. OLLAMA ────────────────────────────────────────────────────────
-        if prov != "DEMO":
+        elif prov == "OLLAMA":
             res = await OllamaProvider.generate_json(prompt=prompt, model=ollama_model, temperature=temperature)
             if res:
                 used_model = ollama_model or OllamaProvider._default_model()
                 return {
                     "json": res,
                     "provider_used": f"Ollama ({used_model})",
-                    "fallback_triggered": (prov in ["GEMINI", "OPENAI"])
+                    "fallback_triggered": False
                 }
+            return {
+                "json": None,
+                "provider_used": "Ollama (Offline)",
+                "fallback_triggered": False,
+                "error": "Local Ollama is offline or unreachable."
+            }
 
         return {
             "json": None,
-            "provider_used": "Deterministic Rule Engine (Fallback)",
-            "fallback_triggered": True
+            "provider_used": "Deterministic Rule Engine",
+            "fallback_triggered": False
         }
 
     @classmethod
@@ -418,11 +487,15 @@ Return ONLY valid JSON:
         except Exception as e:
             logger.debug(f"[AIProvider] Fast AI analysis timeout or error: {e}")
 
+        provider_label = "Deterministic Rule Engine"
+        if prov in ["OPENAI", "GEMINI", "OLLAMA"]:
+            provider_label = f"Deterministic Rule Engine ({prov.capitalize()} Unavailable)"
+
         # Instant explainable fallback
         return {
             "ai_analyzed": False,
-            "ai_provider": "Deterministic Rule Engine (Fallback)",
-            "ai_model": "Deterministic Rule Engine (Fallback)",
+            "ai_provider": provider_label,
+            "ai_model": provider_label,
             "reasoning": fallback_reasoning,
             "recommended_service": fallback_service,
             "outreach_hook": fallback_hook,

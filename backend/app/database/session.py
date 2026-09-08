@@ -3,17 +3,42 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy.orm import declarative_base
 from app.core.config import settings
 
-# For SQLite async compatibility
-db_url = settings.DATABASE_URL
+# Determine database URL and engine options
+raw_url = os.getenv("DATABASE_URL", settings.DATABASE_URL).strip()
+
+def normalize_database_url(url: str) -> str:
+    """
+    Normalizes database URLs for SQLAlchemy 2.0 async compatibility.
+    Render and cloud providers provide URLs starting with postgres:// or postgresql://.
+    SQLAlchemy async requires postgresql+asyncpg://.
+    """
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+asyncpg://", 1)
+    if url.startswith("postgresql://") and not url.startswith("postgresql+asyncpg://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    return url
+
+db_url = normalize_database_url(raw_url)
+
 if db_url.startswith("sqlite"):
-    connect_args = {"check_same_thread": False}
+    engine_kwargs = {
+        "connect_args": {"check_same_thread": False},
+        "echo": False
+    }
 else:
-    connect_args = {}
+    # Production PostgreSQL settings for Render / Supabase / Neon
+    engine_kwargs = {
+        "connect_args": {},
+        "echo": False,
+        "pool_size": 5,
+        "max_overflow": 10,
+        "pool_pre_ping": True,
+        "pool_recycle": 300
+    }
 
 engine = create_async_engine(
     db_url,
-    echo=False,
-    connect_args=connect_args
+    **engine_kwargs
 )
 
 AsyncSessionLocal = async_sessionmaker(

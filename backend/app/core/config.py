@@ -80,8 +80,13 @@ class Settings(BaseSettings):
 
     # API Keys & External Providers (NOT required for Real Free Mode)
     OPENAI_API_KEY: str = ""
+    GEMINI_API_KEY: str = ""
     SEARCH_API_KEY: str = ""
     SEARCH_ENGINE_ID: str = ""
+    
+    # Render & Deployment Environment
+    PORT: int = 8000
+    CORS_ORIGINS: str = ""
     
     # ── LOCAL AI (Ollama) ───────────────────────────────────────────────────
     OLLAMA_BASE_URL: str = "http://127.0.0.1:11434"

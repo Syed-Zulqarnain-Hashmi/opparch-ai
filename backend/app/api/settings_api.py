@@ -90,29 +90,38 @@ async def get_user_ai_config(
     current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """
-    Returns AI configuration for the authenticated user.
-    Never returns raw secret API keys; returns masked status.
+    Returns AI configuration for the user.
+    Integrates user-supplied keys and server-configured environment keys.
+    Never returns raw secret API keys; returns masked preview.
     """
+    server_gemini = (settings.GEMINI_API_KEY or "").strip()
+    server_openai = (settings.OPENAI_API_KEY or "").strip()
+
     if not current_user:
+        has_gemini = bool(server_gemini)
+        has_openai = bool(server_openai)
+        default_prov = "GEMINI" if has_gemini else ("OPENAI" if has_openai else "OLLAMA")
         return {
-            "provider": "OLLAMA",
+            "provider": default_prov,
             "ollama_model": settings.OLLAMA_MODEL,
-            "has_gemini_key": False,
-            "has_openai_key": False,
-            "gemini_key_preview": None,
-            "openai_key_preview": None
+            "has_gemini_key": has_gemini,
+            "has_openai_key": has_openai,
+            "gemini_key_preview": (server_gemini[:4] + "••••••••" + server_gemini[-4:]) if len(server_gemini) > 8 else None,
+            "openai_key_preview": (server_openai[:4] + "••••••••" + server_openai[-4:]) if len(server_openai) > 8 else None,
         }
 
-    gemini_key = current_user.gemini_api_key or ""
-    openai_key = current_user.openai_api_key or ""
+    user_gemini = (current_user.gemini_api_key or "").strip()
+    user_openai = (current_user.openai_api_key or "").strip()
+    active_gemini = user_gemini or server_gemini
+    active_openai = user_openai or server_openai
 
     return {
-        "provider": current_user.ai_provider_preference or "OLLAMA",
+        "provider": current_user.ai_provider_preference or ("GEMINI" if active_gemini else ("OPENAI" if active_openai else "OLLAMA")),
         "ollama_model": current_user.ollama_model_preference or settings.OLLAMA_MODEL,
-        "has_gemini_key": bool(gemini_key.strip()),
-        "has_openai_key": bool(openai_key.strip()),
-        "gemini_key_preview": (gemini_key[:4] + "••••••••" + gemini_key[-4:]) if len(gemini_key) > 8 else None,
-        "openai_key_preview": (openai_key[:4] + "••••••••" + openai_key[-4:]) if len(openai_key) > 8 else None,
+        "has_gemini_key": bool(active_gemini),
+        "has_openai_key": bool(active_openai),
+        "gemini_key_preview": (active_gemini[:4] + "••••••••" + active_gemini[-4:]) if len(active_gemini) > 8 else None,
+        "openai_key_preview": (active_openai[:4] + "••••••••" + active_openai[-4:]) if len(active_openai) > 8 else None,
     }
 
 
@@ -148,8 +157,12 @@ async def update_user_ai_config(
     await db.commit()
     await db.refresh(current_user)
 
-    gemini_key = current_user.gemini_api_key or ""
-    openai_key = current_user.openai_api_key or ""
+    server_gemini = (settings.GEMINI_API_KEY or "").strip()
+    server_openai = (settings.OPENAI_API_KEY or "").strip()
+    user_gemini = (current_user.gemini_api_key or "").strip()
+    user_openai = (current_user.openai_api_key or "").strip()
+    active_gemini = user_gemini or server_gemini
+    active_openai = user_openai or server_openai
 
     return {
         "status": "success",
@@ -157,8 +170,8 @@ async def update_user_ai_config(
         "config": {
             "provider": current_user.ai_provider_preference,
             "ollama_model": current_user.ollama_model_preference,
-            "has_gemini_key": bool(gemini_key.strip()),
-            "has_openai_key": bool(openai_key.strip())
+            "has_gemini_key": bool(active_gemini),
+            "has_openai_key": bool(active_openai)
         }
     }
 
@@ -166,22 +179,23 @@ async def update_user_ai_config(
 @router.post("/test-gemini")
 async def test_gemini_key(
     payload: Dict[str, Any] = Body(...),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """
-    Tests connectivity to Google Gemini API using supplied key or user's stored key.
+    Tests connectivity to Google Gemini API using supplied key, user's stored key, or server key.
     """
-    key = payload.get("api_key") or current_user.gemini_api_key or ""
+    key = payload.get("api_key") or (current_user.gemini_api_key if current_user else None) or settings.GEMINI_API_KEY or ""
     return await GeminiProvider.test_connection(key)
 
 
 @router.post("/test-openai")
 async def test_openai_key(
     payload: Dict[str, Any] = Body(...),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """
-    Tests connectivity to OpenAI API using supplied key or user's stored key.
+    Tests connectivity to OpenAI API using supplied key, user's stored key, or server key.
     """
-    key = payload.get("api_key") or current_user.openai_api_key or ""
+    key = payload.get("api_key") or (current_user.openai_api_key if current_user else None) or settings.OPENAI_API_KEY or ""
     return await OpenAIProvider.test_connection(key)
+

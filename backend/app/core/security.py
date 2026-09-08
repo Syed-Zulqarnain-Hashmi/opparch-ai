@@ -10,9 +10,9 @@ from sqlalchemy import select
 from app.core.config import settings
 from app.database.session import get_db
 
-SECRET_KEY = getattr(settings, "JWT_SECRET_KEY", "opparch_ai_super_secret_jwt_key_2026_devarcher")
+SECRET_KEY = getattr(settings, "SECRET_KEY", None) or getattr(settings, "JWT_SECRET_KEY", "opparch_ai_super_secret_jwt_key_2026_devarcher")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days token
+ACCESS_TOKEN_EXPIRE_MINUTES = getattr(settings, "ACCESS_TOKEN_EXPIRE_MINUTES", 60 * 24 * 7)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)

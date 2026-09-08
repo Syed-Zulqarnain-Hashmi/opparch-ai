@@ -1,4 +1,13 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+function getApiBaseUrl(): string {
+  let url = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1").trim();
+  url = url.replace(/\/+$/, ""); // Remove any trailing slash
+  if (!url.endsWith("/api/v1")) {
+    url = `${url}/api/v1`;
+  }
+  return url;
+}
+
+export const API_BASE_URL = getApiBaseUrl();
 
 export function getAuthToken(): string | null {
   if (typeof window !== "undefined") {
@@ -620,21 +629,18 @@ export async function checkRealInboundEmails() {
 
 // --- Leads CSV + Projects CSV Download ---
 export function downloadLeadsCsvUrl(allLeads = false) {
-  const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
   const token = typeof window !== "undefined" ? localStorage.getItem("opparch_token") : "";
-  return `${base}/export/download-leads-csv?all_leads=${allLeads}&token=${token}`;
+  return `${API_BASE_URL}/export/download-leads-csv?all_leads=${allLeads}&token=${token}`;
 }
 
 export function downloadProjectsCsvUrl() {
-  const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
   const token = typeof window !== "undefined" ? localStorage.getItem("opparch_token") : "";
-  return `${base}/export/download-projects-csv?token=${token}`;
+  return `${API_BASE_URL}/export/download-projects-csv?token=${token}`;
 }
 
 export async function downloadLeadsCSVBlob(allLeads = false): Promise<Blob> {
-  const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
   const token = getAuthToken();
-  const res = await fetch(`${base}/export/download-leads-csv?all_leads=${allLeads}`, {
+  const res = await fetch(`${API_BASE_URL}/export/download-leads-csv?all_leads=${allLeads}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (!res.ok) throw new Error("CSV download failed");
@@ -642,9 +648,8 @@ export async function downloadLeadsCSVBlob(allLeads = false): Promise<Blob> {
 }
 
 export async function downloadProjectsCSVBlob(): Promise<Blob> {
-  const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
   const token = getAuthToken();
-  const res = await fetch(`${base}/export/download-projects-csv`, {
+  const res = await fetch(`${API_BASE_URL}/export/download-projects-csv`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (!res.ok) throw new Error("Projects CSV download failed");
